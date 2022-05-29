@@ -1,19 +1,24 @@
 require('dotenv').config()
 require('dotenv-safe').config({allowEmptyValues: true})
 
+/* SERVER */
 const express = require('express')
 const bodyParser = require('body-parser')
-const fs = require('fs')
 const app = express()
 const http = require('http').Server(app)
-const mongoose = require('mongoose')
+const aport = 3000
+const PORT = process.env.PORT || aport
+const fs = require('fs')
+
+/* SESSION */
 const useragent = require('express-useragent')
 const cookieParser = require('cookie-parser')
 const session = require('express-session')
+
+/* DATABASE */
+const mongoose = require('mongoose')
 const dbPath = process.env.MONGODB_URI
 const db = mongoose.connection
-const aport = 3000
-const PORT = process.env.PORT || aport
 
 mongoose.connect( 
   dbPath, { 
@@ -25,11 +30,10 @@ mongoose.connect(
 )
 
 db.on('error', console.error)
-db.once('connected', function() { 
-  console.log('connected')
+db.once('connected', () => { 
+  console.log('Connected to Database')
 })
 db.once('open', function() {
-  console.log('here')
   startServer()
 })
 
@@ -82,7 +86,7 @@ app.get('/*', function(req, res, next){
   next()
 })
 
-app.get('/lemme', function(req, res){
+app.get('/visited', function(req, res){
   if(req.session.page_views){
      res.send('You visited this page ' + req.session.page_views + ' times')
   } else {
@@ -95,15 +99,13 @@ startServer = () => {
       require('./controllers/' + file).controller(app)
     }
   })
-  /*
-  fs.readdirSync('./controllers/eachandevery/').forEach(function(file) {
+  fs.readdirSync('./controllers/content/').forEach(function(file) {
     if (file.substring(file.length, file.length-3) === '.js')  {
-      require('./controllers/eachandevery/' + file).controller(app)
+      require('./controllers/content/' + file).controller(app)
     }
   })
-  */
 }
 
 http.listen(process.env.PORT, function(){
-  console.log(`listening on *: ${PORT}`)
+  console.log(`Listening on: ${PORT}`)
 })

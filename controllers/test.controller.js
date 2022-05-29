@@ -1,7 +1,7 @@
 TestManager = {
   test: async(req, res) => {
     try {
-      res.status(200).send('transactions')
+      res.status(200).send('test')
     } catch (err) {
       res.status(500).send('Server Error')
     }
