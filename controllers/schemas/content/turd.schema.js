@@ -23,6 +23,9 @@ const TurdSchema = Schema({
   nickName: {
     type: String
   },
+  group: {
+    type: String
+  },
   birthDate: {
     type: Date,
     required: true
