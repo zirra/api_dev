@@ -82,8 +82,9 @@ class Turd {
 
   static async getTurds () {
     try {
+      let count = await this.estimatedDocumentCount()
       let result = await this.find()
-      return result
+      return { result, count }
     } catch(err) {
       return err
     }

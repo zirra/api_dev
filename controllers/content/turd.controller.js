@@ -22,7 +22,9 @@ TurdManager = {
   getTurds: async(req, res) => {
     try {
       let newturd = await Turd.getTurds()
-      res.status(200).send(newturd)
+      console.log(newturd.count)
+      res.header('count', newturd.count);
+      res.status(200).send(newturd.result)
     } catch (err) {
       res.status(500).send('Server Error')
     }
