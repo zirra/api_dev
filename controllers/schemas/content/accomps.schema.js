@@ -9,9 +9,21 @@ const AccomplishmentSchema = Schema({
     unique: true,
     default: shortId.generate
   },
-  ownerId: {
+  turdId: {
     type: String,
     index: true
+  },
+  label: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  links: {
+    type: Array,
+    default: []
   }
 },
 {
@@ -24,9 +36,9 @@ const AccomplishmentSchema = Schema({
 
 class Accomplishment {
 
-  static async createItem (turd) {
+  static async createItem (acc) {
     try {
-      let result = await this.create(turd)
+      let result = await this.create(acc)
       return result
     } catch (err) {
       return err
@@ -42,10 +54,10 @@ class Accomplishment {
     }
   }
 
-  static async getItems () {
+  static async getItems (turdId) {
     try {
       let count = await this.estimatedDocumentCount()
-      let result = await this.find().sort({ lastName: 'asc' })
+      let result = await this.find({turdId}).sort({ lastName: 'asc' })
       return { result, count }
     } catch(err) {
       return err

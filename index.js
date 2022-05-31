@@ -104,6 +104,11 @@ startServer = () => {
       require('./controllers/content/' + file).controller(app)
     }
   })
+  fs.readdirSync('./controllers/content/data/').forEach(function(file) {
+    if (file.substring(file.length, file.length-3) === '.js')  {
+      require('./controllers/content/data/' + file).controller(app)
+    }
+  })
 }
 
 http.listen(process.env.PORT, function(){
