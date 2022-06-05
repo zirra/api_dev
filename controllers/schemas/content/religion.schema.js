@@ -2,35 +2,12 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const shortId = require('shortid')
 
-const AccomplishmentSchema = Schema({
-  accId: {
+const ReligionSchema = Schema({
+  relId: {
     type: String,
     index: true,
     unique: true,
     default: shortId.generate
-  },
-  turdId: {
-    type: String,
-    index: true
-  },
-  eventDate: {
-    type: Date
-  },
-  title: {
-    type: String,
-    required: true
-  },
-  description: {
-    type: String,
-    required: true
-  },
-  sourceLinks: {
-    type: Array,
-    default: []
-  },
-  vetted: {
-    type: Boolean,
-    default: false
   }
 },
 {
@@ -38,10 +15,10 @@ const AccomplishmentSchema = Schema({
   toObject: { virtuals: true },
   toJSON: { virtuals: true },
   id: false,
-  collection: 'accomplishments' 
+  collection: 'religions' 
 })
 
-class Accomplishment {
+class Religion {
 
   static async createItem (acc) {
     try {
@@ -81,6 +58,6 @@ class Accomplishment {
   }
 }
 
-AccomplishmentSchema.loadClass(Accomplishment)
+ReligionSchema.loadClass(Religion)
 
-module.exports = mongoose.model('AccomplishmentItem', AccomplishmentSchema)
+module.exports = mongoose.model('ReligionItem', ReligionSchema)
