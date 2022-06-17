@@ -9,6 +9,8 @@
   "author": "Me",
   "license": "ISC",
   "dependencies": {
+    "aws-cli-js": "^2.2.3",
+    "aws-sdk": "^2.1154.0",
     "body-parser": "^1.18.3",
     "config": "^1.24.0",
     "cookie-parser": "^1.4.3",
