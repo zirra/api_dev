@@ -38,6 +38,9 @@ AwsManager = {
             return me
           }
         })
+        images = images.filter((el) => {
+          return el != null
+        })
         res.status(200).send(images)
       }
     })
