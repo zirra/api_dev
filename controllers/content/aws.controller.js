@@ -19,6 +19,29 @@ AwsManager = {
       }
     })
   },
+  getAssetsV2: (req, res) => {
+    let cat = req.params.category
+    let key = `/${req.params.teamNick}/img/`
+    bucketParams.Prefix = `ds-${cat}/schools${key}`
+    
+    s3.listObjects(bucketParams, function(err, data) {
+      if (err) {
+        res.status(403).send({err, stack: err.stack})
+      } else {
+        let prefix = data.Prefix
+        let images = data.Contents.map(item => {
+          if(item.Size != 0) {
+            let me = {}
+            me.name = item.Key.replace(prefix, '')
+            me.location = `https://s3.digitalseat.io/${prefix}${me.name}`
+            me.size = `${Math.round(parseFloat(item.Size)/1000)}Kb`
+            return me
+          }
+        })
+        res.status(200).send(images)
+      }
+    })
+  },
   putAssets: (req, res) => {
     let {Body} = req.body
     let cat = req.params.category
@@ -48,5 +71,6 @@ AwsManager = {
 module.exports.Controller = AwsManager
 module.exports.controller = (app) => {
   app.get('/v1/aws/:category/:teamNick', AwsManager.getAssets)
+  app.get('/v2/aws/:category/:teamNick', AwsManager.getAssetsV2)
   app.put('/v1/aws/:category/:teamNick', AwsManager.putAssets)
 }
