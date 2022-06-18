@@ -65,29 +65,51 @@ AwsManager = {
     })
   },
   putAssets: (req, res) => {
-
     let cat = req.params.category
     let key = `/${req.params.teamNick}/img/`
-
     let data = req = req.body
-
     bucketParams.Prefix = `ds-${cat}/schools${key}`
-
-    if (data.fileName) {
-      
+    if (data.fileName) { 
       var params = {
         Bucket: bucketParams.Bucket,
         Key: `${bucketParams.Prefix}${data.fileName}.${data.fileType}`,
         Body: data.Body,
         ACL:'public-read'
       }
-
       try {
         s3.upload(params, function (err, response) {               
           if(err)
             res.status(404).send("Error in uploading file on s3 due to "+ err)
           else    
             res.status(200).send("File successfully uploaded.")
+        })
+      } catch (e) {
+        console.log('catch fail')
+        res.status(500).send(e.toString())
+      }
+    } else {
+      res.status(404).send('Not Found')
+    }
+  },
+  deleteAsset: (req, res) => {
+    let cat = req.params.category
+    let key = `/${req.params.teamNick}/img/`
+    let data = req = req.body
+    bucketParams.Prefix = `ds-${cat}/schools${key}`
+    if (data.fileName) { 
+      var params = {
+        Bucket: bucketParams.Bucket,
+        Key: `${bucketParams.Prefix}${data.fileName}.${data.fileType}`,
+      }
+      try {
+        s3.deleteObject(params, function (err, data) {
+          if (err) {
+              console.log(err, err.stack);
+              res.status(403).send(err);
+          } else {
+            console.log(data)
+            res.status(201).send('done')
+          }
         })
       } catch (e) {
         console.log('catch fail')
@@ -103,5 +125,6 @@ module.exports.Controller = AwsManager
 module.exports.controller = (app) => {
   app.get('/v1/aws/:category/:teamNick', AwsManager.getAssets)
   app.get('/v2/aws/:category/:teamNick', AwsManager.getAssetsV2)
-  app.put('/v1/aws/:category/:teamNick', AwsManager.putAssets)
+  app.post('/v1/aws/:category/:teamNick', AwsManager.putAssets)
+  app.delete('/v1/aws/:category/:teamNick', AwsManager.deleteAsset)
 }
