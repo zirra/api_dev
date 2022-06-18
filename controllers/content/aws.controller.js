@@ -1,6 +1,7 @@
 const {S3} = require('aws-sdk')
 
 const s3 = new S3({region: 'us-east-2'})
+
 const bucketParams = { 
   Bucket: 'ds-stadium-bucket'
 }
@@ -64,28 +65,50 @@ AwsManager = {
     })
   },
   putAssets: (req, res) => {
-    let {Body} = req.body
+
     let cat = req.params.category
-    let key = `ds-${cat}/${req.params.teamNick}/img/`
-    console.log(key + ' ' + Body)
-    try {
-      let bucketPromise = new AWS.S3({apiVersion: '2006-03-01'}).createBucket(bucketParams).promise()
-      bucketPromise.then(
-        function(data) {
-          let uploadPromise = new AWS.S3({apiVersion: '2006-03-01'}).putObject({bucketParams, key, Body}).promise()
-          uploadPromise.then(
-            function() {
-              res.status(200).send(`Files Uploaded to ${bucketParams}`)
-            });
-      }).catch(
-        function(err) {
-          console.log(err)
-          res.status(401).send(err)
-      })
-    } catch (error) {
-      console.log(error)
-      res.status(500).send('Server Error')
+    let key = `/${req.params.teamNick}/img/`
+
+    let data = req = req.body
+
+    bucketParams.Prefix = `ds-${cat}/schools${key}`
+
+    if (data.fileName) {
+      
+      var params = {
+        Bucket: bucketParams.Bucket,
+        Key: `${bucketParams.Prefix}${data.fileName}.${data.fileType}`,
+        Body: data.Body,
+        ACL:'public-read'
+      }
+
+      try {
+        s3.upload(params, function (err, response) {               
+          if(err)
+            res.status(404).send("Error in uploading file on s3 due to "+ err)
+          else    
+            res.status(200).send("File successfully uploaded.")
+        })
+      } catch (e) {
+        console.log('catch fail')
+        res.status(500).send(e.toString())
+      }
+    } else {
+      res.status(404).send('Not Found')
     }
+    
+    /*
+    var params = {
+      Key: fileName,
+      Body: fileData,
+    }
+    s3bucket.upload(params, function (err, res) {               
+      if(err)
+        console.log("Error in uploading file on s3 due to "+ err)
+      else    
+        console.log("File successfully uploaded.")
+    })
+    */
   }
 }
 
