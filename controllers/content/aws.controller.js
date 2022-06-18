@@ -23,7 +23,6 @@ AwsManager = {
     let cat = req.params.category
     let key = `/${req.params.teamNick}/img/`
     bucketParams.Prefix = `ds-${cat}/schools${key}`
-    
     s3.listObjects(bucketParams, function(err, data) {
       if (err) {
         res.status(403).send({err, stack: err.stack})
@@ -35,6 +34,25 @@ AwsManager = {
             me.name = item.Key.replace(prefix, '')
             me.location = `https://s3.digitalseat.io/${prefix}${me.name}`
             me.size = `${Math.round(parseFloat(item.Size)/1000)}Kb`
+            let myval = Math.round(parseFloat(item.Size)/1000)
+            let warn = ''
+
+            if (myval > 0 && myval < 76)
+               warn = '#2A52BD'
+            
+            if (myval > 75 && myval < 101)
+              warn = '#24B344'
+
+            if (myval > 100 && myval < 126)
+              warn = '#FFD301'
+
+            if (myval > 125 && myval < 176)
+              warn = '#FF8B01'
+
+            if (myval > 175)
+              warn = '#AD1313'
+
+            me.warn = warn
             return me
           }
         })
@@ -49,7 +67,7 @@ AwsManager = {
     let {Body} = req.body
     let cat = req.params.category
     let key = `ds-${cat}/${req.params.teamNick}/img/`
-    console.log(Key + ' ' + Body)
+    console.log(key + ' ' + Body)
     try {
       let bucketPromise = new AWS.S3({apiVersion: '2006-03-01'}).createBucket(bucketParams).promise()
       bucketPromise.then(
