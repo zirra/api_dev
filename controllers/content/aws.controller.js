@@ -1,6 +1,7 @@
 const {S3} = require('aws-sdk')
-
 const s3 = new S3({region: 'us-east-2'})
+
+const formidable = require('formidable'), util = require('util')
 
 const bucketParams = { 
   Bucket: 'ds-stadium-bucket'
@@ -32,6 +33,7 @@ AwsManager = {
         let images = data.Contents.map(item => {
           if(item.Size != 0) {
             let me = {}
+            me.ETag = item.ETag
             me.name = item.Key.replace(prefix, '')
             me.location = `https://s3.digitalseat.io/${prefix}${me.name}`
             me.size = `${Math.round(parseFloat(item.Size)/1000)}Kb`
@@ -65,10 +67,38 @@ AwsManager = {
     })
   },
   putAssets: (req, res) => {
+    const form = new formidable.IncomingForm()
+
+    form.multiples = true
+    form.maxFileSize = 50 * 1024 * 1024
+
+    files = []
+    fields = []
+
+    form
+      .on('field', function(field, value) {
+        fields.push([field, value])
+      })
+      .on('file', function(field, file) {
+        files.push([field, file])
+      })
+      .on('end', function() {
+        console.log('-> upload done')
+
+        files.forEach((file) => {
+          console.log(file[1].originalFilename)
+          console.log(file[1])
+        })
+        res.end()
+      })
+    
+    form.parse(req)
+    /*
     let cat = req.params.category
     let key = `/${req.params.teamNick}/img/`
     let data = req = req.body
     bucketParams.Prefix = `ds-${cat}/schools${key}`
+
     if (data.fileName) { 
       var params = {
         Bucket: bucketParams.Bucket,
@@ -90,6 +120,7 @@ AwsManager = {
     } else {
       res.status(404).send('Not Found')
     }
+    */
   },
   deleteAsset: (req, res) => {
     let cat = req.params.category
@@ -125,6 +156,6 @@ module.exports.Controller = AwsManager
 module.exports.controller = (app) => {
   app.get('/v1/aws/:category/:teamNick', AwsManager.getAssets)
   app.get('/v2/aws/:category/:teamNick', AwsManager.getAssetsV2)
-  app.post('/v1/aws/:category/:teamNick', AwsManager.putAssets)
+  app.post ('/v1/aws/:category/:teamNick', AwsManager.putAssets)
   app.delete('/v1/aws/:category/:teamNick', AwsManager.deleteAsset)
 }

@@ -51,7 +51,6 @@ app.use(useragent.express())
 
 app.set('port', process.env.PORT || aport)
 
-app.use(bodyParser.urlencoded({limit: '50mb', extended: false}))
 app.use(bodyParser.json({limit: '50mb'}))
 app.use(bodyParser.text({ type: 'text/html' }))
 
